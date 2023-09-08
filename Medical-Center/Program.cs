@@ -1,6 +1,7 @@
 using Medical_Center;
 using Medical_Center.Data;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(
+    options => {
+        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

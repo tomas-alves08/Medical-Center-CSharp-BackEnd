@@ -19,6 +19,7 @@ namespace Medical_Center.Models
         public string City { get; set; } = string.Empty;
         public DateTime? BirthDate { get; set; }
         [JsonIgnore]
+
         public ICollection<Appointment>? Appointments { get; set; }
         public Patient()
         {

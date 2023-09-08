@@ -4,13 +4,10 @@ using Medical_Center.Models;
 using Medical_Center.Models.DTO.AppointmentDTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System.Data.Entity.Infrastructure;
-using System.Data.Entity.Validation;
 
 namespace Medical_Center.Controllers
 {
-    [Route("api/appointments")]
+    [Route("api/Appointments")]
     [ApiController]
     public class AppointmentController : ControllerBase
     {
@@ -23,7 +20,7 @@ namespace Medical_Center.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppointmentDTO>>> GetAppointments()
+        public async Task<ActionResult<IEnumerable<AppointmentDTO>>> GetAllAppointments()
         {
             try
             {

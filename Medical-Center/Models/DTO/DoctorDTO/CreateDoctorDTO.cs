@@ -13,6 +13,5 @@ namespace Medical_Center.Models.DTO.DoctorDTO
         public string City { get; set; } = string.Empty;
         [Required]
         public int RegistrationNumber { get; set; }
-        public ICollection<Appointment>? Appointments { get; set; }
     }
 }
