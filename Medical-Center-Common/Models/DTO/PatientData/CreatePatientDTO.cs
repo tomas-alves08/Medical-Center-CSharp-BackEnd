@@ -1,17 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Medical_Center.Data.Models;
 
-namespace Medical_Center.Models.DTO.DoctorDTO
+namespace Medical_Center_Common.Models.DTO.PatientData
 {
-    public class CreateDoctorDTOOutDated
+    public class CreatePatientDTO
     {
         [Required]
         public string FirstName { get; set; } = string.Empty;
         [Required]
         public string LastName { get; set; } = string.Empty;
-        public string ExtraDetails { get; set; } = string.Empty;
+        public string Details { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
-        [Required]
-        public int RegistrationNumber { get; set; }
+        public DateTime? BirthDate { get; set; }
+        public ICollection<Appointment>? Appointments { get; set; }
     }
 }

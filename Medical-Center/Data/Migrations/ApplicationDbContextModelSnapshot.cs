@@ -22,7 +22,7 @@ namespace Medical_Center.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Medical_Center.Models.Appointment", b =>
+            modelBuilder.Entity("Medical_Center.Data.Models.Appointment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -61,22 +61,22 @@ namespace Medical_Center.Migrations
                         new
                         {
                             Id = 1,
-                            AppointmentDateTime = new DateTime(2023, 9, 5, 16, 17, 34, 449, DateTimeKind.Local).AddTicks(6383),
-                            CreateTime = new DateTime(2023, 9, 5, 16, 17, 34, 449, DateTimeKind.Local).AddTicks(6429),
+                            AppointmentDateTime = new DateTime(2023, 10, 17, 14, 30, 0, 0, DateTimeKind.Unspecified),
+                            CreateTime = new DateTime(2023, 9, 11, 15, 25, 29, 906, DateTimeKind.Local).AddTicks(7434),
                             DiagnosisDetails = "",
                             DoctorId = 1,
                             PatientId = 1,
-                            UpdateTime = new DateTime(2023, 9, 5, 16, 17, 34, 449, DateTimeKind.Local).AddTicks(6430)
+                            UpdateTime = new DateTime(2023, 9, 11, 15, 25, 29, 906, DateTimeKind.Local).AddTicks(7493)
                         });
                 });
 
-            modelBuilder.Entity("Medical_Center.Models.Doctor", b =>
+            modelBuilder.Entity("Medical_Center.Data.Models.Doctor", b =>
                 {
-                    b.Property<int>("DoctorId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DoctorId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -107,32 +107,32 @@ namespace Medical_Center.Migrations
                     b.Property<DateTime>("UpdateTime")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("DoctorId");
+                    b.HasKey("Id");
 
                     b.ToTable("Doctors");
 
                     b.HasData(
                         new
                         {
-                            DoctorId = 1,
+                            Id = 1,
                             Address = "77 Craig Street",
                             City = "Wellington",
-                            CreateTime = new DateTime(2023, 9, 5, 16, 17, 34, 449, DateTimeKind.Local).AddTicks(6588),
+                            CreateTime = new DateTime(2023, 9, 11, 15, 25, 29, 906, DateTimeKind.Local).AddTicks(7717),
                             ExtraDetails = "",
                             FirstName = "Joseph",
                             LastName = "Smith",
                             RegistrationNumber = 167948,
-                            UpdateTime = new DateTime(2023, 9, 5, 16, 17, 34, 449, DateTimeKind.Local).AddTicks(6589)
+                            UpdateTime = new DateTime(2023, 9, 11, 15, 25, 29, 906, DateTimeKind.Local).AddTicks(7720)
                         });
                 });
 
-            modelBuilder.Entity("Medical_Center.Models.Patient", b =>
+            modelBuilder.Entity("Medical_Center.Data.Models.Patient", b =>
                 {
-                    b.Property<int>("PatientId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PatientId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -163,35 +163,35 @@ namespace Medical_Center.Migrations
                     b.Property<DateTime>("UpdateTime")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("PatientId");
+                    b.HasKey("Id");
 
                     b.ToTable("Patients");
 
                     b.HasData(
                         new
                         {
-                            PatientId = 1,
+                            Id = 1,
                             Address = "8 Fake Street",
                             BirthDate = new DateTime(1989, 3, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             City = "Wellington",
-                            CreateTime = new DateTime(2023, 9, 5, 16, 17, 34, 449, DateTimeKind.Local).AddTicks(6549),
+                            CreateTime = new DateTime(2023, 9, 11, 15, 25, 29, 906, DateTimeKind.Local).AddTicks(7694),
                             ExtraDetails = "",
                             FirstName = "Tomas",
                             LastName = "Alves de Souza",
-                            UpdateTime = new DateTime(2023, 9, 5, 16, 17, 34, 449, DateTimeKind.Local).AddTicks(6550)
+                            UpdateTime = new DateTime(2023, 9, 11, 15, 25, 29, 906, DateTimeKind.Local).AddTicks(7698)
                         });
                 });
 
-            modelBuilder.Entity("Medical_Center.Models.Appointment", b =>
+            modelBuilder.Entity("Medical_Center.Data.Models.Appointment", b =>
                 {
-                    b.HasOne("Medical_Center.Models.Doctor", "Doctor")
-                        .WithMany("Appointments")
+                    b.HasOne("Medical_Center.Data.Models.Doctor", "Doctor")
+                        .WithMany()
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Medical_Center.Models.Patient", "Patient")
-                        .WithMany("Appointments")
+                    b.HasOne("Medical_Center.Data.Models.Patient", "Patient")
+                        .WithMany()
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -199,16 +199,6 @@ namespace Medical_Center.Migrations
                     b.Navigation("Doctor");
 
                     b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("Medical_Center.Models.Doctor", b =>
-                {
-                    b.Navigation("Appointments");
-                });
-
-            modelBuilder.Entity("Medical_Center.Models.Patient", b =>
-                {
-                    b.Navigation("Appointments");
                 });
 #pragma warning restore 612, 618
         }

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Medical_Center.Models.DTO.DoctorDTO
 {
-    public class DoctorDTO
+    public class DoctorDTOOutDated
     {
         [Required]
         public int DoctorId { get; set; }

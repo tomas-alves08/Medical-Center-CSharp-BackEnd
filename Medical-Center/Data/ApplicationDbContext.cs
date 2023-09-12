@@ -1,8 +1,9 @@
-﻿using Medical_Center.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using Medical_Center.Data.Models;
+using System.Reflection.Metadata;
 
 namespace Medical_Center.Data
 {
@@ -15,6 +16,23 @@ namespace Medical_Center.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Appointment>().HasKey(k => k.Id);
+            modelBuilder.Entity<Patient>().HasKey(k => k.Id);
+            modelBuilder.Entity<Doctor>().HasKey(k => k.Id);
+
+            modelBuilder.Entity<Doctor>().HasMany<Appointment>(f => f.Appointments).WithOne(a => a.Doctor).HasForeignKey(a=> a.DoctorId).IsRequired();
+            modelBuilder.Entity<Patient>().HasMany<Appointment>(f => f.Appointments).WithOne(a => a.Patient).HasForeignKey(a => a.PatientId).IsRequired();
+
+            modelBuilder.Entity<Appointment>().Property(p => p.AppointmentDateTime).IsRequired();
+            modelBuilder.Entity<Doctor>().Property(p => p.FirstName).IsRequired();
+            modelBuilder.Entity<Doctor>().Property(p => p.LastName).IsRequired();
+            modelBuilder.Entity<Doctor>().Property(p => p.RegistrationNumber).IsRequired();
+            modelBuilder.Entity<Patient>().Property(p => p.FirstName).IsRequired();
+            modelBuilder.Entity<Patient>().Property(p => p.LastName).IsRequired();
+
+            modelBuilder.Entity<Doctor>().Ignore(p => p.Appointments);
+            modelBuilder.Entity<Patient>().Ignore(p => p.Appointments);
+
             modelBuilder.Entity<Appointment>().HasData(
                 new Appointment() 
                 {
@@ -30,7 +48,7 @@ namespace Medical_Center.Data
             modelBuilder.Entity<Patient>().HasData(
                 new Patient()
                 {
-                    PatientId = 1,
+                    Id = 1,
                     FirstName = "Tomas",
                     LastName = "Alves de Souza",
                     Address = "8 Fake Street",
@@ -44,7 +62,7 @@ namespace Medical_Center.Data
             modelBuilder.Entity<Doctor>().HasData(
                 new Doctor()
                 {
-                    DoctorId = 1,
+                    Id = 1,
                     FirstName = "Joseph",
                     LastName = "Smith",
                     Address = "77 Craig Street",

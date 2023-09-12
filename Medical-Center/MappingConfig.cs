@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Medical_Center.Models;
+using Medical_Center.Data.Models;
 using Medical_Center.Models.DTO.AppointmentDTO;
 using Medical_Center.Models.DTO.DoctorDTO;
 using Medical_Center.Models.DTO.PatientDTO;

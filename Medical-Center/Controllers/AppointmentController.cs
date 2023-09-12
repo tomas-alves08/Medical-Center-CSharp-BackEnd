@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Medical_Center.Data;
-using Medical_Center.Models;
+using Medical_Center.Data.Models;
 using Medical_Center.Models.DTO.AppointmentDTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +32,7 @@ namespace Medical_Center.Controllers
 
                 return Ok(_mapper.Map<IEnumerable<AppointmentDTO>>(appointments));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "I am sorry but we had a problem when trying to retreive your appointment information.");
             }
@@ -48,7 +48,7 @@ namespace Medical_Center.Controllers
                     return BadRequest();
                 }
 
-                Appointment appointment = await _db.Appointments
+                var appointment = await _db.Appointments
                                                     .Include(appointment => appointment.Patient)
                                                     .Include(appointment => appointment.Doctor)
                                                     .FirstOrDefaultAsync(appointment => appointment.Id == id);
@@ -59,7 +59,7 @@ namespace Medical_Center.Controllers
                 }
                 return Ok(_mapper.Map<AppointmentDTO>(appointment));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "I am sorry but we had a problem when trying to retreive your appointment information.");
             }
@@ -70,8 +70,8 @@ namespace Medical_Center.Controllers
         {
             try
             {
-                var doctor = _db.Doctors.FirstOrDefault(doc => doc.DoctorId == createDTO.DoctorId);
-                var patient = _db.Patients.FirstOrDefault(patient => patient.PatientId == createDTO.PatientId);
+                var doctor = _db.Doctors.FirstOrDefault(doc => doc.Id == createDTO.DoctorId);
+                var patient = _db.Patients.FirstOrDefault(patient => patient.Id == createDTO.PatientId);
 
                 if (doctor == null)
                 {
@@ -99,7 +99,7 @@ namespace Medical_Center.Controllers
 
                 return CreatedAtAction(nameof(CreateAppointment), new {id = model.Id}, createDTO);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "I am sorry but we had a problem when trying to create your appointment.");
             }
@@ -127,7 +127,7 @@ namespace Medical_Center.Controllers
 
                 return NoContent();
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Sorry but we had problems when trying to delete your appointment.");
             }
@@ -136,8 +136,8 @@ namespace Medical_Center.Controllers
         [HttpPut("id")]
         public async Task<ActionResult> UpdateAppointment(int id, [FromBody] UpdateAppointmentDTO updateDTO) 
         {
-            var patient = _db.Patients.FirstOrDefault(patient => patient.PatientId == updateDTO.PatientId);
-            var doctor = _db.Doctors.FirstOrDefault(doc => doc.DoctorId == updateDTO.DoctorId);
+            var patient = _db.Patients.FirstOrDefault(patient => patient.Id == updateDTO.PatientId);
+            var doctor = _db.Doctors.FirstOrDefault(doc => doc.Id == updateDTO.DoctorId);
             
             if (patient == null || doctor == null)
             {

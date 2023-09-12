@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Medical_Center.Data.Models;
 
 namespace Medical_Center.Models.DTO.PatientDTO
 {
-    public class UpdatePatientDTO
+    public class UpdatePatientDTOOutDated
     {
         [Required]
         public int PatientId { get; set; }

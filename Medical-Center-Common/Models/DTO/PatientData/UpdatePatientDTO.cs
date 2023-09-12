@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Medical_Center.Data.Models;
+using Medical_Center_Common.Models;
 
-namespace Medical_Center.Models.DTO.PatientDTO
+namespace Medical_Center_Common.Models.DTO.PatientData
 {
-    public class PatientDTOOutDated
+    public class UpdatePatientDTO
     {
         [Required]
         public int PatientId { get; set; }

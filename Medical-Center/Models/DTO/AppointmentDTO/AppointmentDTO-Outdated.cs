@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Medical_Center.Data.Models;
 
 namespace Medical_Center.Models.DTO.AppointmentDTO
 {
-    public class AppointmentDTO
+    public class AppointmentDTOOutDated
     {
         [Required]
         public int Id { get; set; }

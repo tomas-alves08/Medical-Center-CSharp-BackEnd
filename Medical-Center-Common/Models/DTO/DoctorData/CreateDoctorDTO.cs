@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Medical_Center.Models.DTO.DoctorDTO
+namespace Medical_Center_Common.Models.DTO.DoctorData
 {
-    public class CreateDoctorDTOOutDated
+    public class CreateDoctorDTO
     {
         [Required]
         public string FirstName { get; set; } = string.Empty;

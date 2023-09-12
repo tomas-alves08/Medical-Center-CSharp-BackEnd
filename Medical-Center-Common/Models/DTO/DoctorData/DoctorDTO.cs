@@ -1,9 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
-namespace Medical_Center.Models.DTO.DoctorDTO
+namespace Medical_Center_Common.Models.DTO.DoctorData
 {
-    public class CreateDoctorDTOOutDated
+    public class DoctorDTO
     {
+        [Required]
+        public int DoctorId { get; set; }
         [Required]
         public string FirstName { get; set; } = string.Empty;
         [Required]

@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
 using Medical_Center.Data;
-using Medical_Center.Models;
-using Medical_Center.Models.DTO.AppointmentDTO;
-using Medical_Center.Models.DTO.DoctorDTO;
+using Medical_Center.Data.Models;
+using Medical_Center_Common.Models.DTO.DoctorData;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.Entity;
 
@@ -33,7 +32,7 @@ namespace Medical_Center.Controllers
 
                 return Ok(_mapper.Map<IEnumerable<DoctorDTO>>(doctors));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Sorry but we are having problems when retreiving your list of doctors.");
             }
@@ -49,7 +48,9 @@ namespace Medical_Center.Controllers
                     return BadRequest("ID provided is not valid. Please try using a different one.");
                 }
 
-                var doctor = _db.Doctors.Include(doc => doc.Appointments).FirstOrDefault(doc => doc.DoctorId == id);
+                var doctor = _db.Doctors
+                                        .Include(doc => doc.Appointments)
+                                        .FirstOrDefault(doc => doc.Id == id);
 
                 if(doctor == null)
                 {
@@ -60,7 +61,7 @@ namespace Medical_Center.Controllers
 
                 return Ok(model);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Sorry but we are having problems when trying to retrieve the specified doctor info.");
             }
@@ -92,9 +93,9 @@ namespace Medical_Center.Controllers
                 await _db.Doctors.AddAsync(model);
                 await _db.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(CreateDoctor), new { id = model.DoctorId }, createDTO);
+                return CreatedAtAction(nameof(CreateDoctor), new { id = model.Id }, createDTO);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Sorry but we are having problems when trying to create a doctor user.");
             }
@@ -110,7 +111,7 @@ namespace Medical_Center.Controllers
                     return BadRequest("ID invalid");
                 }
 
-                var doctorToDelete = _db.Doctors.FirstOrDefault(doc => doc.DoctorId == id);
+                var doctorToDelete = _db.Doctors.FirstOrDefault(doc => doc.Id == id);
 
                 if(doctorToDelete == null)
                 {
@@ -122,7 +123,7 @@ namespace Medical_Center.Controllers
 
                 return NoContent();
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Sorry! We are having problems when trying to delete your doctor user.");
             }
@@ -138,7 +139,7 @@ namespace Medical_Center.Controllers
                     return BadRequest("Please double check the ID and doctor info ID.");
                 }
 
-                var doctorToUpdate = _db.Doctors.FirstOrDefault(doc => doc.DoctorId == id);
+                var doctorToUpdate = _db.Doctors.FirstOrDefault(doc => doc.Id == id);
 
                 if(doctorToUpdate == null)
                 {
@@ -151,7 +152,7 @@ namespace Medical_Center.Controllers
 
                 return NoContent();
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Sorry! We are having problems to save your doctor's info.");
             }
