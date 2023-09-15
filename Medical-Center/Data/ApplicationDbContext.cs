@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using Medical_Center.Data.Models;
 using System.Reflection.Metadata;
+using Medical_Center_Common.Models.DTO.AppointmentData;
+using Medical_Center_Common.Models.DTO.DoctorData;
+using Medical_Center_Common.Models.DTO.PatientData;
 
 namespace Medical_Center.Data
 {
@@ -29,9 +32,6 @@ namespace Medical_Center.Data
             modelBuilder.Entity<Doctor>().Property(p => p.RegistrationNumber).IsRequired();
             modelBuilder.Entity<Patient>().Property(p => p.FirstName).IsRequired();
             modelBuilder.Entity<Patient>().Property(p => p.LastName).IsRequired();
-
-            modelBuilder.Entity<Doctor>().Ignore(p => p.Appointments);
-            modelBuilder.Entity<Patient>().Ignore(p => p.Appointments);
 
             modelBuilder.Entity<Appointment>().HasData(
                 new Appointment() 

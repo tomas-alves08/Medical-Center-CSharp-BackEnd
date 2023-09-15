@@ -1,10 +1,10 @@
-﻿using System.Collections.ObjectModel;
+﻿using Medical_Center_Common.Models.DTO.AppointmentData;
+using System.Collections.ObjectModel;
 
 namespace Medical_Center.Data.Models
 {
     public class Doctor
     {
-        /*[DatabaseGenerated(DatabaseGeneratedOption.Identity)]*/
         public int Id { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;

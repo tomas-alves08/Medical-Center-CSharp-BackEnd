@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Medical_Center_Common.Models.DTO.AppointmentData;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Medical_Center_Common.Models.DTO.DoctorData
@@ -6,7 +7,7 @@ namespace Medical_Center_Common.Models.DTO.DoctorData
     public class DoctorDTO
     {
         [Required]
-        public int DoctorId { get; set; }
+        public int Id { get; set; }
         [Required]
         public string FirstName { get; set; } = string.Empty;
         [Required]
@@ -16,5 +17,6 @@ namespace Medical_Center_Common.Models.DTO.DoctorData
         public string City { get; set; } = string.Empty;
         [Required]
         public int RegistrationNumber { get; set; }
+        public ICollection<AppointmentDTO>? Appointments { get; set; }
     }
 }

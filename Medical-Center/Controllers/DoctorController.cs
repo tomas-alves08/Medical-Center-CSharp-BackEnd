@@ -3,7 +3,7 @@ using Medical_Center.Data;
 using Medical_Center.Data.Models;
 using Medical_Center_Common.Models.DTO.DoctorData;
 using Microsoft.AspNetCore.Mvc;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Medical_Center.Controllers
 {
@@ -25,10 +25,10 @@ namespace Medical_Center.Controllers
         {
             try
             {
-                IEnumerable<Doctor> doctors = await _db.Doctors
-                                                            .Include(doc => doc.Appointments)
-                                                            .OrderBy(doc => doc.FirstName)
-                                                            .ToListAsync();
+                var doctors = await _db.Doctors
+                                       .Include(doc => doc.Appointments)
+                                       .OrderBy(doc => doc.Id)
+                                       .ToListAsync();
 
                 return Ok(_mapper.Map<IEnumerable<DoctorDTO>>(doctors));
             }
@@ -68,7 +68,7 @@ namespace Medical_Center.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<DoctorDTO>> CreateDoctor([FromBody] DoctorDTO createDTO)
+        public async Task<ActionResult<DoctorDTO>> CreateDoctor([FromBody] CreateDoctorDTO createDTO)
         {
             try
             {
@@ -130,16 +130,16 @@ namespace Medical_Center.Controllers
         }
 
         [HttpPut("id")]
-        public async Task<ActionResult> UpdateDoctor(int id, [FromBody] DoctorDTO updateDTO)
+        public async Task<ActionResult> UpdateDoctor(int id, [FromBody] UpdateDoctorDTO updateDTO)
         {
             try
             {
-                if(id == 0 || id != updateDTO.DoctorId)
+                if(id == 0 || id != updateDTO.Id || updateDTO == null)
                 {
                     return BadRequest("Please double check the ID and doctor info ID.");
                 }
 
-                var doctorToUpdate = _db.Doctors.FirstOrDefault(doc => doc.Id == id);
+                var doctorToUpdate = _db.Doctors.AsNoTracking().FirstOrDefault(doc => doc.Id == id);
 
                 if(doctorToUpdate == null)
                 {

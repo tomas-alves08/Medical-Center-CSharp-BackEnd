@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using Medical_Center.Data;
 using Medical_Center.Data.Models;
-using Medical_Center.Models.DTO.AppointmentDTO;
+using Medical_Center_Common.Models.DTO.AppointmentData;
+using Medical_Center_Common.Models.DTO.DoctorData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

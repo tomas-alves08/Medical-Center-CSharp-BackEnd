@@ -1,9 +1,11 @@
 ﻿
+using Medical_Center_Common.Models.DTO.DoctorData;
+using Medical_Center_Common.Models.DTO.PatientData;
+
 namespace Medical_Center.Data.Models
 {
     public class Appointment
     {
-        /*[DatabaseGenerated(DatabaseGeneratedOption.Identity)]*/
         public int Id { get; set; }
         public int PatientId { get; set; }
         public Patient? Patient { get; set; }

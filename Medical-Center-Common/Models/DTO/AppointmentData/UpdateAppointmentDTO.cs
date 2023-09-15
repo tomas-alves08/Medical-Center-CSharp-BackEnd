@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace Medical_Center_Common.Models.DTO.AppointmentData
 {
     public class UpdateAppointmentDTO
