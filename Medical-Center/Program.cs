@@ -1,5 +1,8 @@
 using Medical_Center;
 using Medical_Center.Data;
+using Medical_Center.Data.Models;
+using Medical_Center.Data.Repository;
+using Medical_Center.Data.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -10,6 +13,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection"));
 });
+
+builder.Services.AddScoped<IRepository<Appointment>, AppointmentRepository>(); 
+builder.Services.AddScoped<IRepository<Doctor>, DoctorRepository>();
+builder.Services.AddScoped<IRepository<Patient>, PatientRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 

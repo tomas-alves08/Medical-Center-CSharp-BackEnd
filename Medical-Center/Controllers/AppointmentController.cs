@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Medical_Center.Data;
 using Medical_Center.Data.Models;
+using Medical_Center.Data.Repository.IRepository;
 using Medical_Center_Common.Models.DTO.AppointmentData;
 using Medical_Center_Common.Models.DTO.DoctorData;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,24 +14,26 @@ namespace Medical_Center.Controllers
     [ApiController]
     public class AppointmentController : ControllerBase
     {
-        private readonly ApplicationDbContext _db;
         private readonly IMapper _mapper;
-        public AppointmentController(ApplicationDbContext db, IMapper mapper)
+        private readonly IRepository<Appointment> _dbAppointment;
+        private readonly IRepository<Doctor> _dbDoctor;
+        private readonly IRepository<Patient> _dbPatient;
+        private readonly ApplicationDbContext _db;
+        public AppointmentController(ApplicationDbContext db,IRepository<Appointment> dbAppointment, IMapper mapper, IRepository<Doctor> dbDoctor, IRepository<Patient> dbPatient)
         {
-            _db = db;
+            _dbAppointment = dbAppointment;
             _mapper = mapper;
+            _db = db;
+            _dbDoctor = dbDoctor;
+            _dbPatient = dbPatient;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppointmentDTO>>> GetAllAppointments()
+        public ActionResult<IEnumerable<AppointmentDTO>> GetAllAppointments()
         {
             try
             {
-                IEnumerable<Appointment> appointments = await _db.Appointments
-                                                            .Include(appointment => appointment.Patient)
-                                                            .Include(appointment => appointment.Doctor)
-                                                            .OrderBy(appointment => appointment.AppointmentDateTime)
-                                                            .ToListAsync();
+                IEnumerable<Appointment> appointments = _dbAppointment.GetAll();
 
                 return Ok(_mapper.Map<IEnumerable<AppointmentDTO>>(appointments));
             }
@@ -40,7 +44,7 @@ namespace Medical_Center.Controllers
         }
 
         [HttpGet("id")]
-        public async Task<ActionResult<AppointmentDTO>> GetOneAppointment(int id)
+        public ActionResult<AppointmentDTO> GetOneAppointment(int id)
         {
             try
             {
@@ -49,10 +53,7 @@ namespace Medical_Center.Controllers
                     return BadRequest();
                 }
 
-                var appointment = await _db.Appointments
-                                                    .Include(appointment => appointment.Patient)
-                                                    .Include(appointment => appointment.Doctor)
-                                                    .FirstOrDefaultAsync(appointment => appointment.Id == id);
+                var appointment = _dbAppointment.GetOne(appointment => appointment.Id == id);
 
                 if (appointment == null)
                 {
@@ -71,8 +72,11 @@ namespace Medical_Center.Controllers
         {
             try
             {
-                var doctor = _db.Doctors.FirstOrDefault(doc => doc.Id == createDTO.DoctorId);
-                var patient = _db.Patients.FirstOrDefault(patient => patient.Id == createDTO.PatientId);
+                /*var doctor = _db.Doctors.FirstOrDefault(doc => doc.Id == createDTO.DoctorId);
+                var patient = _db.Patients.FirstOrDefault(patient => patient.Id == createDTO.PatientId);*/
+
+                var doctor = _dbDoctor.GetOne(doc => doc.Id == createDTO.DoctorId);
+                var patient = _dbPatient.GetOne(patient => patient.Id == createDTO.PatientId);
 
                 if (doctor == null)
                 {
@@ -95,8 +99,7 @@ namespace Medical_Center.Controllers
                 }
 
                 Appointment model = _mapper.Map<Appointment>(createDTO);
-                await _db.Appointments.AddAsync(model);
-                await _db.SaveChangesAsync();
+                await _dbAppointment.CreateAsync(model);
 
                 return CreatedAtAction(nameof(CreateAppointment), new {id = model.Id}, createDTO);
             }
@@ -116,15 +119,14 @@ namespace Medical_Center.Controllers
                     return BadRequest("Invalid ID. Please try using a different ID.");
                 }
 
-                var appointment = _db.Appointments.FirstOrDefault(appointment => appointment.Id == id);
+                var appointment = _dbAppointment.GetOne(appointment => appointment.Id == id);
 
                 if (appointment == null)
                 {
                     return NotFound();
                 }
 
-                _db.Remove(appointment);
-                await _db.SaveChangesAsync();
+                await _dbAppointment.RemoveAsync(appointment);
 
                 return NoContent();
             }
@@ -137,9 +139,12 @@ namespace Medical_Center.Controllers
         [HttpPut("id")]
         public async Task<ActionResult> UpdateAppointment(int id, [FromBody] UpdateAppointmentDTO updateDTO) 
         {
-            var patient = _db.Patients.FirstOrDefault(patient => patient.Id == updateDTO.PatientId);
-            var doctor = _db.Doctors.FirstOrDefault(doc => doc.Id == updateDTO.DoctorId);
-            
+            /*var patient = _db.Patients.FirstOrDefault(patient => patient.Id == updateDTO.PatientId);
+            var doctor = _db.Doctors.FirstOrDefault(doc => doc.Id == updateDTO.DoctorId);*/
+
+            var doctor = _dbDoctor.GetOne(doc => doc.Id == updateDTO.DoctorId);
+            var patient = _dbPatient.GetOne(patient => patient.Id == updateDTO.PatientId);
+
             if (patient == null || doctor == null)
             {
                 return BadRequest("At least Patient or Doctor chosen does not exist. Please double check your appointment request.");
@@ -158,9 +163,9 @@ namespace Medical_Center.Controllers
             }
 
             var model = _mapper.Map<Appointment>(updateDTO);
-            _db.Update(model);
 
-            await _db.SaveChangesAsync();
+            await _dbAppointment.UpdateAsync(model);
+
             return NoContent();
         }
     }

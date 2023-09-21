@@ -16,22 +16,29 @@ namespace Medical_Center.Data
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
+        public DbSet<LocalUser> LocalUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Appointment>().HasKey(k => k.Id);
             modelBuilder.Entity<Patient>().HasKey(k => k.Id);
-            modelBuilder.Entity<Doctor>().HasKey(k => k.Id);
+            modelBuilder.Entity<Doctor>().HasKey(k => k.Id); 
+            modelBuilder.Entity<LocalUser>().HasKey(k => k.Id);
 
             modelBuilder.Entity<Doctor>().HasMany<Appointment>(f => f.Appointments).WithOne(a => a.Doctor).HasForeignKey(a=> a.DoctorId).IsRequired();
             modelBuilder.Entity<Patient>().HasMany<Appointment>(f => f.Appointments).WithOne(a => a.Patient).HasForeignKey(a => a.PatientId).IsRequired();
 
             modelBuilder.Entity<Appointment>().Property(p => p.AppointmentDateTime).IsRequired();
+
             modelBuilder.Entity<Doctor>().Property(p => p.FirstName).IsRequired();
             modelBuilder.Entity<Doctor>().Property(p => p.LastName).IsRequired();
             modelBuilder.Entity<Doctor>().Property(p => p.RegistrationNumber).IsRequired();
+
             modelBuilder.Entity<Patient>().Property(p => p.FirstName).IsRequired();
             modelBuilder.Entity<Patient>().Property(p => p.LastName).IsRequired();
+
+            modelBuilder.Entity<LocalUser>().Property(p => p.UserName).IsRequired();
+            modelBuilder.Entity<LocalUser>().Property(p => p.Password).IsRequired();
 
             modelBuilder.Entity<Appointment>().HasData(
                 new Appointment() 

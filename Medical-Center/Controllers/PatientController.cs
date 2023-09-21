@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Medical_Center.Data;
 using Medical_Center.Data.Models;
+using Medical_Center.Data.Repository.IRepository;
 using Medical_Center_Common.Models.DTO.PatientData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,109 +11,136 @@ namespace Medical_Center.Controllers
     [ApiController]
     public class PatientController : ControllerBase
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IRepository<Patient> _dbPatient;
         private readonly IMapper _mapper;
 
-        public PatientController(ApplicationDbContext db, IMapper mapper)
+        public PatientController(IRepository<Patient> dbPatient, IMapper mapper)
         {
-            _db = db;
+            _dbPatient = dbPatient;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PatientDTO>>> getAllPatients()
+        public ActionResult<IEnumerable<PatientDTO>> getAllPatients()
         {
-            var patients = await _db.Patients
-                                    .Include(patient => patient.Appointments)
-                                    .OrderBy(patient => patient.FirstName)
-                                    .ToListAsync();
-
-            return Ok(_mapper.Map<IEnumerable<PatientDTO>>(patients));
+            try
+            {
+                var patients = _dbPatient.GetAll();
+                                        
+                return Ok(_mapper.Map<IEnumerable<PatientDTO>>(patients));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Sorry! We had problems when retrieving the patients' profiles.");
+            }
         }
 
         [HttpGet("id")]
-        public async Task<ActionResult<PatientDTO>> getOnePatient(int id)
+        public ActionResult<PatientDTO> getOnePatient(int id)
         {
-            if(id == 0)
+            try
             {
-                return BadRequest("Invalid ID. Please provide a valid ID.");
+                if(id == 0)
+                {
+                    return BadRequest("Invalid ID. Please provide a valid ID.");
+                }
+
+                var patient = _dbPatient.GetOne(patient => patient.Id == id);
+
+                if(patient == null)
+                {
+                    return NotFound();
+                }
+
+                var model = _mapper.Map<PatientDTO>(patient);
+
+                return Ok(model);
             }
-
-            var patient = await _db.Patients
-                                   .Include (patient => patient.Appointments)
-                                   .FirstOrDefaultAsync(patient => patient.Id == id);
-
-            if(patient == null)
+            catch (Exception)
             {
-                return NotFound();
+                return StatusCode(StatusCodes.Status500InternalServerError, "Sorry! We had problems when retrieving the patient's profile.");
             }
-
-            var model = _mapper.Map<PatientDTO>(patient);
-
-            return Ok(model);
         }
 
         [HttpPost]
         public async Task<ActionResult<PatientDTO>> CreatePatient([FromBody] CreatePatientDTO createDTO)
         {
-            if (createDTO == null)
+            try
             {
-                return BadRequest();
-            }
+                if (createDTO == null)
+                {
+                    return BadRequest();
+                }
 
-            if (!ModelState.IsValid)
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                Patient model = _mapper.Map<Patient>(createDTO);
+                await _dbPatient.CreateAsync(model);
+
+                return CreatedAtAction(nameof(CreatePatient), new { id = model.Id }, createDTO);
+            }
+            catch (Exception)
             {
-                return BadRequest(ModelState);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Sorry! We had problems when creating the new patient's profile.");
             }
-
-            Patient model = _mapper.Map<Patient>(createDTO);
-            await _db.Patients.AddAsync(model);
-            await _db.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(CreatePatient), new { id = model.Id }, createDTO);
         }
 
         [HttpDelete("id")]
         public async Task<ActionResult> RemovePatient(int id)
         {
-            if(id == 0)
+            try
             {
-                return BadRequest("Invalid ID. Please provida a valid ID.");
-            }
+                if(id == 0)
+                {
+                    return BadRequest("Invalid ID. Please provida a valid ID.");
+                }
 
-            var patient = await _db.Patients.FirstOrDefaultAsync(patient => patient.Id == id);
+                var patient = _dbPatient.GetOne(patient => patient.Id == id);
             
-            if(patient == null)
-            {
-                return NotFound();
+                if(patient == null)
+                {
+                    return NotFound();
+                }
+
+                await _dbPatient.RemoveAsync(patient);
+
+                return NoContent();
             }
-
-            _db.Patients.Remove(patient);
-            await _db.SaveChangesAsync();
-
-            return NoContent();
+            catch(Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Sorry! We had problems when deleting the patient's profile.");
+            }
         }
 
         [HttpPut("id")]
         public async Task<ActionResult> UpdatePatient(int id, [FromBody] UpdatePatientDTO updateDTO)
         {
-            if(id == 0 || id != updateDTO.Id || updateDTO == null)
+            try
             {
-                return BadRequest("Either the provided ID is invalid or the ID provided on the update data does not match the provided ID.");
+                if(id == 0 || id != updateDTO.Id || updateDTO == null)
+                {
+                    return BadRequest("Either the provided ID is invalid or the ID provided on the update data does not match the provided ID.");
+                }
+
+                var patientToUpdate = _dbPatient.GetOne(patient => patient.Id == id, false);
+
+                if(patientToUpdate == null)
+                {
+                    return NotFound();
+                }
+
+                var model = _mapper.Map<Patient>(updateDTO);
+                await _dbPatient.UpdateAsync(model);
+
+                return NoContent();
             }
-
-            var patientToUpdate = await _db.Patients.AsNoTracking().FirstOrDefaultAsync(patient => patient.Id == id);
-
-            if(patientToUpdate == null)
+            catch (Exception)
             {
-                return NotFound();
+                return StatusCode(StatusCodes.Status500InternalServerError, "Sorry! We had problems when updating the patient's profile.");
             }
-
-            Patient model = _mapper.Map<Patient>(updateDTO);
-            _db.Patients.Update(model);
-            await _db.SaveChangesAsync();
-
-            return NoContent();
         }
     }
 }
