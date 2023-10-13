@@ -4,6 +4,7 @@ using Medical_Center.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Medical_Center.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231012031441_Create-Payment-And-Bookings-Table")]
+    partial class CreatePaymentAndBookingsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,11 +65,11 @@ namespace Medical_Center.Migrations
                         {
                             Id = 1,
                             AppointmentDateTime = new DateTime(2023, 10, 17, 14, 30, 0, 0, DateTimeKind.Unspecified),
-                            CreateTime = new DateTime(2023, 10, 12, 16, 28, 32, 681, DateTimeKind.Local).AddTicks(1633),
+                            CreateTime = new DateTime(2023, 10, 12, 16, 14, 41, 736, DateTimeKind.Local).AddTicks(2739),
                             DiagnosisDetails = "",
                             DoctorId = 1,
                             PatientId = 1,
-                            UpdateTime = new DateTime(2023, 10, 12, 16, 28, 32, 681, DateTimeKind.Local).AddTicks(1675)
+                            UpdateTime = new DateTime(2023, 10, 12, 16, 14, 41, 736, DateTimeKind.Local).AddTicks(2783)
                         });
                 });
 
@@ -138,12 +141,12 @@ namespace Medical_Center.Migrations
                             Id = 1,
                             Address = "77 Craig Street",
                             City = "Wellington",
-                            CreateTime = new DateTime(2023, 10, 12, 16, 28, 32, 681, DateTimeKind.Local).AddTicks(1825),
+                            CreateTime = new DateTime(2023, 10, 12, 16, 14, 41, 736, DateTimeKind.Local).AddTicks(2912),
                             ExtraDetails = "",
                             FirstName = "Joseph",
                             LastName = "Smith",
                             RegistrationNumber = 167948,
-                            UpdateTime = new DateTime(2023, 10, 12, 16, 28, 32, 681, DateTimeKind.Local).AddTicks(1826)
+                            UpdateTime = new DateTime(2023, 10, 12, 16, 14, 41, 736, DateTimeKind.Local).AddTicks(2913)
                         });
                 });
 
@@ -224,37 +227,12 @@ namespace Medical_Center.Migrations
                             Address = "8 Fake Street",
                             BirthDate = new DateTime(1989, 3, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             City = "Wellington",
-                            CreateTime = new DateTime(2023, 10, 12, 16, 28, 32, 681, DateTimeKind.Local).AddTicks(1810),
+                            CreateTime = new DateTime(2023, 10, 12, 16, 14, 41, 736, DateTimeKind.Local).AddTicks(2898),
                             ExtraDetails = "",
                             FirstName = "Tomas",
                             LastName = "Alves de Souza",
-                            UpdateTime = new DateTime(2023, 10, 12, 16, 28, 32, 681, DateTimeKind.Local).AddTicks(1812)
+                            UpdateTime = new DateTime(2023, 10, 12, 16, 14, 41, 736, DateTimeKind.Local).AddTicks(2900)
                         });
-                });
-
-            modelBuilder.Entity("Medical_Center.Data.Models.Payment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AppointmentId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PatientId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Medical_Center.Data.Models.Appointment", b =>

@@ -11,21 +11,22 @@ namespace Medical_Center.Controllers
     [ApiController]
     public class PatientController : ControllerBase
     {
-        private readonly IRepository<Patient> _dbPatient;
+        private readonly IRepo<Patient> _dbPatient;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _dbUnitOfWork;
 
-        public PatientController(IRepository<Patient> dbPatient, IMapper mapper)
+        public PatientController(IUnitOfWork dbUnitOfWork, IMapper mapper)
         {
-            _dbPatient = dbPatient;
+            _dbUnitOfWork = dbUnitOfWork;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<PatientDTO>> getAllPatients()
+        public async Task<ActionResult<IEnumerable<PatientDTO>>> getAllPatients()
         {
             try
             {
-                var patients = _dbPatient.GetAll();
+                var patients = await _dbUnitOfWork.Patients.GetAllAsync();
                                         
                 return Ok(_mapper.Map<IEnumerable<PatientDTO>>(patients));
             }
@@ -36,7 +37,7 @@ namespace Medical_Center.Controllers
         }
 
         [HttpGet("id")]
-        public ActionResult<PatientDTO> getOnePatient(int id)
+        public async Task<ActionResult<PatientDTO>> getOnePatient(int id)
         {
             try
             {
@@ -45,7 +46,7 @@ namespace Medical_Center.Controllers
                     return BadRequest("Invalid ID. Please provide a valid ID.");
                 }
 
-                var patient = _dbPatient.GetOne(patient => patient.Id == id);
+                var patient = await _dbUnitOfWork.Patients.GetOneAsync(id);
 
                 if(patient == null)
                 {
@@ -78,7 +79,10 @@ namespace Medical_Center.Controllers
                 }
 
                 Patient model = _mapper.Map<Patient>(createDTO);
-                await _dbPatient.CreateAsync(model);
+                await _dbUnitOfWork.Patients.CreateAsync(model);
+                await _dbUnitOfWork.Save();
+
+                createDTO.Id = model.Id;
 
                 return CreatedAtAction(nameof(CreatePatient), new { id = model.Id }, createDTO);
             }
@@ -98,14 +102,15 @@ namespace Medical_Center.Controllers
                     return BadRequest("Invalid ID. Please provida a valid ID.");
                 }
 
-                var patient = _dbPatient.GetOne(patient => patient.Id == id);
+                var patient = await _dbUnitOfWork.Patients.GetOneAsync(id);
             
                 if(patient == null)
                 {
                     return NotFound();
                 }
 
-                await _dbPatient.RemoveAsync(patient);
+                await _dbUnitOfWork.Patients.RemoveAsync(patient);
+                await _dbUnitOfWork.Save();
 
                 return NoContent();
             }
@@ -125,7 +130,7 @@ namespace Medical_Center.Controllers
                     return BadRequest("Either the provided ID is invalid or the ID provided on the update data does not match the provided ID.");
                 }
 
-                var patientToUpdate = _dbPatient.GetOne(patient => patient.Id == id, false);
+                var patientToUpdate = await _dbUnitOfWork.Patients.GetOneAsync(id, false);
 
                 if(patientToUpdate == null)
                 {
@@ -133,7 +138,8 @@ namespace Medical_Center.Controllers
                 }
 
                 var model = _mapper.Map<Patient>(updateDTO);
-                await _dbPatient.UpdateAsync(model);
+                await _dbUnitOfWork.Patients.UpdateAsync(model);
+                await _dbUnitOfWork.Save();
 
                 return NoContent();
             }

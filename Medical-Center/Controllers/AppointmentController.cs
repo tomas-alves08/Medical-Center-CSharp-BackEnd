@@ -1,12 +1,8 @@
 ﻿using AutoMapper;
-using Medical_Center.Data;
 using Medical_Center.Data.Models;
 using Medical_Center.Data.Repository.IRepository;
 using Medical_Center_Common.Models.DTO.AppointmentData;
-using Medical_Center_Common.Models.DTO.DoctorData;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Medical_Center.Controllers
 {
@@ -15,26 +11,19 @@ namespace Medical_Center.Controllers
     public class AppointmentController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly IRepository<Appointment> _dbAppointment;
-        private readonly IRepository<Doctor> _dbDoctor;
-        private readonly IRepository<Patient> _dbPatient;
-        private readonly ApplicationDbContext _db;
-        public AppointmentController(ApplicationDbContext db,IRepository<Appointment> dbAppointment, IMapper mapper, IRepository<Doctor> dbDoctor, IRepository<Patient> dbPatient)
+        private readonly IUnitOfWork _dbUnitOfWork;
+        public AppointmentController(IUnitOfWork dbUnitOfWork, IMapper mapper)
         {
-            _dbAppointment = dbAppointment;
             _mapper = mapper;
-            _db = db;
-            _dbDoctor = dbDoctor;
-            _dbPatient = dbPatient;
+            _dbUnitOfWork = dbUnitOfWork;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<AppointmentDTO>> GetAllAppointments()
+        public async Task<ActionResult<IEnumerable<AppointmentDTO>>> GetAllAppointments()
         {
             try
             {
-                IEnumerable<Appointment> appointments = _dbAppointment.GetAll();
-
+                IEnumerable<Appointment> appointments = await _dbUnitOfWork.Appointments.GetAllAsync();
                 return Ok(_mapper.Map<IEnumerable<AppointmentDTO>>(appointments));
             }
             catch (Exception)
@@ -44,16 +33,16 @@ namespace Medical_Center.Controllers
         }
 
         [HttpGet("id")]
-        public ActionResult<AppointmentDTO> GetOneAppointment(int id)
+        public async Task<ActionResult<AppointmentDTO>> GetOneAppointment(int id)
         {
             try
             {
-                if(id == 0)
+                if (id == 0)
                 {
                     return BadRequest();
                 }
 
-                var appointment = _dbAppointment.GetOne(appointment => appointment.Id == id);
+                var appointment = await _dbUnitOfWork.Appointments.GetOneAsync(id);
 
                 if (appointment == null)
                 {
@@ -72,11 +61,8 @@ namespace Medical_Center.Controllers
         {
             try
             {
-                /*var doctor = _db.Doctors.FirstOrDefault(doc => doc.Id == createDTO.DoctorId);
-                var patient = _db.Patients.FirstOrDefault(patient => patient.Id == createDTO.PatientId);*/
-
-                var doctor = _dbDoctor.GetOne(doc => doc.Id == createDTO.DoctorId);
-                var patient = _dbPatient.GetOne(patient => patient.Id == createDTO.PatientId);
+                var patient = _dbUnitOfWork.Patients.GetOneAsync(createDTO.PatientId);
+                var doctor = _dbUnitOfWork.Doctors.GetOneAsync(createDTO.DoctorId);
 
                 if (doctor == null)
                 {
@@ -99,13 +85,16 @@ namespace Medical_Center.Controllers
                 }
 
                 Appointment model = _mapper.Map<Appointment>(createDTO);
-                await _dbAppointment.CreateAsync(model);
+                await _dbUnitOfWork.Appointments.CreateAsync(model);
+                await _dbUnitOfWork.Save();
+
+                createDTO.Id = model.Id;
 
                 return CreatedAtAction(nameof(CreateAppointment), new {id = model.Id}, createDTO);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "I am sorry but we had a problem when trying to create your appointment.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "I am sorry but we had a problem when trying to create your appointment. Error related to " + ex);
             }
         }
 
@@ -119,14 +108,15 @@ namespace Medical_Center.Controllers
                     return BadRequest("Invalid ID. Please try using a different ID.");
                 }
 
-                var appointment = _dbAppointment.GetOne(appointment => appointment.Id == id);
+                var appointment = await _dbUnitOfWork.Appointments.GetOneAsync(id, false);
 
                 if (appointment == null)
                 {
                     return NotFound();
                 }
 
-                await _dbAppointment.RemoveAsync(appointment);
+                await _dbUnitOfWork.Appointments.RemoveAsync(appointment);
+                await _dbUnitOfWork.Save();
 
                 return NoContent();
             }
@@ -139,11 +129,8 @@ namespace Medical_Center.Controllers
         [HttpPut("id")]
         public async Task<ActionResult> UpdateAppointment(int id, [FromBody] UpdateAppointmentDTO updateDTO) 
         {
-            /*var patient = _db.Patients.FirstOrDefault(patient => patient.Id == updateDTO.PatientId);
-            var doctor = _db.Doctors.FirstOrDefault(doc => doc.Id == updateDTO.DoctorId);*/
-
-            var doctor = _dbDoctor.GetOne(doc => doc.Id == updateDTO.DoctorId);
-            var patient = _dbPatient.GetOne(patient => patient.Id == updateDTO.PatientId);
+            var doctor = _dbUnitOfWork.Doctors.GetOneAsync(updateDTO.DoctorId, false);
+            var patient = _dbUnitOfWork.Patients.GetOneAsync(updateDTO.PatientId, false);
 
             if (patient == null || doctor == null)
             {
@@ -155,16 +142,17 @@ namespace Medical_Center.Controllers
                 return BadRequest("Either id is not valid or id provided and id of the appointment provided do not match.");
             }
 
-            var appointment = await _db.Appointments.AsNoTracking().FirstOrDefaultAsync(app => app.Id == id);
+            var appointment = await _dbUnitOfWork.Appointments.GetOneAsync(id, false);
 
-            if(appointment == null)
+            if (appointment == null)
             {
                 return NotFound();
             }
 
             var model = _mapper.Map<Appointment>(updateDTO);
 
-            await _dbAppointment.UpdateAsync(model);
+            await _dbUnitOfWork.Appointments.UpdateAsync(model);
+            await _dbUnitOfWork.Save();
 
             return NoContent();
         }

@@ -1,23 +1,30 @@
 using Medical_Center;
+using Medical_Center.Business;
 using Medical_Center.Data;
 using Medical_Center.Data.Models;
 using Medical_Center.Data.Repository;
 using Medical_Center.Data.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
 builder.Services.AddDbContext<ApplicationDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection"));
 });
 
-builder.Services.AddScoped<IRepository<Appointment>, AppointmentRepository>(); 
-builder.Services.AddScoped<IRepository<Doctor>, DoctorRepository>();
-builder.Services.AddScoped<IRepository<Patient>, PatientRepository>();
+builder.Services.AddScoped<IRepo<Appointment>, AppointmentRepository>(); 
+builder.Services.AddScoped<IRepo<Doctor>, DoctorRepository>();
+builder.Services.AddScoped<IRepo<Patient>, PatientRepository>();
+builder.Services.AddScoped<IRepo<Payment>, BookingRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IBookings, Bookings>();
 
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 
@@ -25,9 +32,21 @@ builder.Services.AddControllers().AddNewtonsoftJson(
     options => {
         options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
     });
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+    });
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
@@ -39,6 +58,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthorization();
 

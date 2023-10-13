@@ -1,11 +1,10 @@
 ﻿using Medical_Center.Data.Models;
 using Medical_Center.Data.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Medical_Center.Data.Repository
 {
-    public class DoctorRepository : IRepository<Doctor>
+    public class DoctorRepository : IRepo<Doctor>
     {
         private readonly ApplicationDbContext _db;
 
@@ -16,24 +15,20 @@ namespace Medical_Center.Data.Repository
         public async Task CreateAsync(Doctor entity)
         {
             await _db.Doctors.AddAsync(entity);
-            await SaveAsync();
         }
 
-        public List<Doctor> GetAll(Expression<Func<Doctor, bool>> filter = null)
+        public async Task<List<Doctor>> GetAllAsync()
         {
             IQueryable<Doctor> query = _db.Doctors;
 
-            if(filter != null)
-            {
-                query = query.Where(filter);
-            }
+            var result = await query.Include(doc => doc.Appointments)
+                                    .OrderBy(doc => doc.Id)
+                                    .ToListAsync();
 
-            return query.Include(doc => doc.Appointments)
-                        .OrderBy(doc => doc.Id)
-                        .ToList();
+            return result;
         }
 
-        public Doctor GetOne(Expression<Func<Doctor, bool>> filter = null, bool tracked = true)
+        public async Task<Doctor> GetOneAsync(int id, bool tracked = true)
         {
             IQueryable<Doctor> query = _db.Doctors;
 
@@ -42,31 +37,23 @@ namespace Medical_Center.Data.Repository
                 query = query.AsNoTracking();
             }
 
-            if(filter != null)
-            {
-                query = query.Include(doc => doc.Appointments)
-                             .OrderBy(doc => doc.Id)
-                             .Where(filter);
-            }
+            var result = await query
+                                    .Include(doc => doc.Appointments)
+                                    .OrderBy(doc => doc.Id)
+                                    
+                                    .FirstOrDefaultAsync(doc => doc.Id == id);
 
-            return query.FirstOrDefault();
+            return result;
         }
 
         public async Task RemoveAsync(Doctor entity)
         {
             _db.Doctors.Remove(entity);
-            await SaveAsync();
-        }
-
-        public async Task SaveAsync()
-        {
-            await _db.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Doctor entity)
         {
             _db.Doctors.Update(entity);
-            await SaveAsync();
         }
     }
 }

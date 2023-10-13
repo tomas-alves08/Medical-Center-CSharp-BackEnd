@@ -16,17 +16,25 @@ namespace Medical_Center.Data
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
+        public DbSet<Payment> Payments { get; set; }
         public DbSet<LocalUser> LocalUsers { get; set; }
+        /*
+        public DbSet<AppointmentOrderResponse> AppointmentOrderResponses { get; set; }*/
+        /*public DbSet<Payment> Payments { get; set; }*/
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Appointment>().HasKey(k => k.Id);
             modelBuilder.Entity<Patient>().HasKey(k => k.Id);
-            modelBuilder.Entity<Doctor>().HasKey(k => k.Id); 
+            modelBuilder.Entity<Doctor>().HasKey(k => k.Id);
+            modelBuilder.Entity<Booking>().HasKey(k => k.Id);
+            modelBuilder.Entity<Payment>().HasKey(k => k.Id);
             modelBuilder.Entity<LocalUser>().HasKey(k => k.Id);
 
             modelBuilder.Entity<Doctor>().HasMany<Appointment>(f => f.Appointments).WithOne(a => a.Doctor).HasForeignKey(a=> a.DoctorId).IsRequired();
             modelBuilder.Entity<Patient>().HasMany<Appointment>(f => f.Appointments).WithOne(a => a.Patient).HasForeignKey(a => a.PatientId).IsRequired();
+            modelBuilder.Entity<Patient>().HasMany<Booking>(f => f.Bookings).WithOne(a => a.Patient).HasForeignKey(a => a.PatientId).IsRequired();
 
             modelBuilder.Entity<Appointment>().Property(p => p.AppointmentDateTime).IsRequired();
 
@@ -36,6 +44,8 @@ namespace Medical_Center.Data
 
             modelBuilder.Entity<Patient>().Property(p => p.FirstName).IsRequired();
             modelBuilder.Entity<Patient>().Property(p => p.LastName).IsRequired();
+
+            modelBuilder.Entity<Booking>().Property(p => p.PatientId).IsRequired();
 
             modelBuilder.Entity<LocalUser>().Property(p => p.UserName).IsRequired();
             modelBuilder.Entity<LocalUser>().Property(p => p.Password).IsRequired();
@@ -79,6 +89,11 @@ namespace Medical_Center.Data
                     UpdateTime = DateTime.Now
                 }
             );
+        }
+
+        internal Task AddAsync(Appointment appointment, Patient patient)
+        {
+            throw new NotImplementedException();
         }
     }
 }

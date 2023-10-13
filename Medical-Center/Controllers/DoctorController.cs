@@ -10,21 +10,21 @@ namespace Medical_Center.Controllers
     [ApiController]
     public class DoctorController : ControllerBase
     {
-        private readonly IRepository<Doctor> _dbDoctor;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _dbUnitOfWork;
 
-        public DoctorController(IRepository<Doctor> dbDoctor, IMapper mapper)
+        public DoctorController(IMapper mapper, IUnitOfWork unitOfWork)
         {
-            _dbDoctor = dbDoctor;
             _mapper = mapper;
+            _dbUnitOfWork = unitOfWork;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<DoctorDTO>> GetAllDoctors()
+        public async Task<ActionResult<IEnumerable<DoctorDTO>>> GetAllDoctors()
         {
             try
             {
-                var doctors = _dbDoctor.GetAll();
+                var doctors = await _dbUnitOfWork.Doctors.GetAllAsync();
 
                 return Ok(_mapper.Map<IEnumerable<DoctorDTO>>(doctors));
             }
@@ -35,7 +35,7 @@ namespace Medical_Center.Controllers
         }
 
         [HttpGet("id")]
-        public ActionResult<DoctorDTO> GetOneDoctor(int id)
+        public async Task<ActionResult<DoctorDTO>> GetOneDoctor(int id)
         {
             try
             {
@@ -44,7 +44,7 @@ namespace Medical_Center.Controllers
                     return BadRequest("ID provided is not valid. Please try using a different one.");
                 }
 
-                var doctor = _dbDoctor.GetOne(doc => doc.Id == id);
+                var doctor = await _dbUnitOfWork.Doctors.GetOneAsync(id);
 
                 if(doctor == null)
                 {
@@ -71,7 +71,7 @@ namespace Medical_Center.Controllers
                     return BadRequest("Invalid Doctor Information.");
                 }
 
-                var doctorExistingRegistration = _dbDoctor.GetOne(doc => doc.RegistrationNumber == createDTO.RegistrationNumber); 
+                var doctorExistingRegistration = await _dbUnitOfWork.Doctors.GetOneAsync(createDTO.RegistrationNumber); 
 
                 if(doctorExistingRegistration != null)
                 {
@@ -84,7 +84,10 @@ namespace Medical_Center.Controllers
                 }
 
                 Doctor model = _mapper.Map<Doctor>(createDTO);
-                await _dbDoctor.CreateAsync(model);
+                await _dbUnitOfWork.Doctors.CreateAsync(model);
+                await _dbUnitOfWork.Save();
+
+                createDTO.Id = model.Id;
 
                 return CreatedAtAction(nameof(CreateDoctor), new { id = model.Id }, createDTO);
             }
@@ -104,14 +107,15 @@ namespace Medical_Center.Controllers
                     return BadRequest("ID invalid");
                 }
 
-                var doctorToDelete = _dbDoctor.GetOne(doc => doc.Id == id);
+                var doctorToDelete = await _dbUnitOfWork.Doctors.GetOneAsync(id);
 
                 if(doctorToDelete == null)
                 {
                     return NotFound();
                 }
 
-                await _dbDoctor.RemoveAsync(doctorToDelete);
+                await _dbUnitOfWork.Doctors.RemoveAsync(doctorToDelete);
+                await _dbUnitOfWork.Save();
 
                 return NoContent();
             }
@@ -131,7 +135,7 @@ namespace Medical_Center.Controllers
                     return BadRequest("Please double check the ID and doctor info ID.");
                 }
 
-                var doctorToUpdate = _dbDoctor.GetOne(doc => doc.Id == id, false);
+                var doctorToUpdate = await _dbUnitOfWork.Doctors.GetOneAsync(id, false);
 
                 if(doctorToUpdate == null)
                 {
@@ -139,7 +143,8 @@ namespace Medical_Center.Controllers
                 }
 
                 var model = _mapper.Map<Doctor>(updateDTO);
-                await _dbDoctor.UpdateAsync(model);
+                await _dbUnitOfWork.Doctors.UpdateAsync(model);
+                await _dbUnitOfWork.Save();
 
                 return NoContent();
             }

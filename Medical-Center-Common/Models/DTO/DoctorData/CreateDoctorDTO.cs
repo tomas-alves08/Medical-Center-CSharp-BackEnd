@@ -4,6 +4,7 @@ namespace Medical_Center_Common.Models.DTO.DoctorData
 {
     public class CreateDoctorDTO
     {
+        public int Id { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string ExtraDetails { get; set; } = string.Empty;

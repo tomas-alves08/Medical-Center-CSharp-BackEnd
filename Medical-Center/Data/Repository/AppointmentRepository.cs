@@ -1,11 +1,10 @@
 ﻿using Medical_Center.Data.Models;
 using Medical_Center.Data.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Medical_Center.Data.Repository
 {
-    public class AppointmentRepository : IRepository<Appointment>
+    public class AppointmentRepository : IRepo<Appointment>
     {
         private readonly ApplicationDbContext _db;
 
@@ -17,25 +16,21 @@ namespace Medical_Center.Data.Repository
         public async Task CreateAsync(Appointment entity)
         {
             await _db.Appointments.AddAsync(entity);
-            await SaveAsync();
         }
 
-        public List<Appointment> GetAll(Expression<Func<Appointment, bool>> filter = null)
+        public async Task<List<Appointment>> GetAllAsync()
         {
             IQueryable<Appointment> query = _db.Appointments;
 
-            if (filter != null)
-            {
-               query = query.Where(filter);
-            }
+            var result = await query.Include(appointment => appointment.Patient)
+                                    .Include(appointment => appointment.Doctor)
+                                    .OrderBy(appointment => appointment.AppointmentDateTime)
+                                    .ToListAsync();
 
-            return query.Include(appointment => appointment.Patient)
-                        .Include(appointment => appointment.Doctor)
-                        .OrderBy(appointment => appointment.AppointmentDateTime)
-                        .ToList();
+            return result;
         }
 
-        public Appointment GetOne(Expression<Func<Appointment, bool>> filter = null, bool tracked = true)
+        public async Task<Appointment> GetOneAsync(int id, bool tracked = true)
         {
             IQueryable<Appointment> query = _db.Appointments;
 
@@ -44,32 +39,22 @@ namespace Medical_Center.Data.Repository
                 query = query.AsNoTracking();
             }
 
-            if (filter != null)
-            {
-                query = query
+            var result = await query
                             .Include(appointment => appointment.Patient)
                             .Include(appointment => appointment.Doctor)
                             .OrderBy(appointment => appointment.AppointmentDateTime)
-                            .Where(filter);
-            }
+                            .FirstOrDefaultAsync(appointment => appointment.Id == id);
 
-            return query.FirstOrDefault();
+            return result;
         }
 
         public async Task RemoveAsync(Appointment entity)
         {
             _db.Appointments.Remove(entity);
-            await SaveAsync();
         }
         public async Task UpdateAsync(Appointment entity)
         {
             _db.Appointments.Update(entity);
-            await SaveAsync();
-        }
-
-        public async Task SaveAsync()
-        {
-            await _db.SaveChangesAsync();
         }
     }
 }
