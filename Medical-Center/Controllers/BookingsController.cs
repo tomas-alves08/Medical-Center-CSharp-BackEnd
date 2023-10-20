@@ -1,41 +1,43 @@
 ﻿using Medical_Center.Business;
-using Medical_Center.Data.Models;
+using Medical_Center.Data;
+using Medical_Center.Data.Repository.IRepository;
 using Medical_Center_Common.Models.DTO.AppointmentData;
-using Medical_Center_Common.Models.DTO.BookingData;
 using Medical_Center_Common.Models.DTO.PaymentData;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Medical_Center.Controllers
 {
     [Route("api/Bookings")]
     [ApiController]
-    public class BookingsController
+    public class BookingsController:ControllerBase
     {
         private readonly IBookings _bookings;
-        public BookingsController(IBookings bookings)
+        private readonly ApplicationDbContext _db;
+        private readonly IUnitOfWork _dbUnitOfWork;
+        public BookingsController(IBookings bookings, ApplicationDbContext db, IUnitOfWork dbUnitOfWork)
         {
             _bookings = bookings;
+            _db = db;
+            _dbUnitOfWork = dbUnitOfWork;
         }
 
         [HttpPost]
-        public /*ActionResult<PaymentDTO>*/ void CreateBooking(AppointmentDTO createAppointmentDTO)
+        public ActionResult<PaymentDTO> CreateBooking(CreateAppointmentDTO createAppointmentDTO)
         {
             if (createAppointmentDTO == null)
             {
-                /*return BadRequest();*/
+                return BadRequest();
             }
 
-            PaymentDTO payment = new()
+            var appointmentTimeBusy = _db.Appointments.FirstOrDefault(appointment => appointment.AppointmentDateTime == createAppointmentDTO.AppointmentDateTime);
+
+            if (appointmentTimeBusy != null)
             {
-                PatientId = createAppointmentDTO.PatientId,
-                //Todo Price Table and replace hardcoded price below
-                Price = 100,
-                Created = DateTime.Now
-            };
+                return BadRequest("Appointment Date and Time is not available. Please try a different Date and Time.");
+            }
 
             var booking = _bookings.SaveBookings(createAppointmentDTO);
-            /*return CreatedAtAction(nameof(CreateBooking), new { id = booking.Id }, payment);*/
+            return CreatedAtAction(nameof(CreateBooking), new { id = booking.Id }, createAppointmentDTO);
         }
     }
 }

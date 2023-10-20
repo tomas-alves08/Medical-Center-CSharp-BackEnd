@@ -20,7 +20,7 @@ namespace Medical_Center.Data.Repository
 
         public async Task<List<Payment>> GetAllAsync()
         {
-            IQueryable<Payment> query = _db.Payments;
+            IQueryable<Payment> query = _db.Bookings;
 
             var result = await query
                                     .OrderBy(payment => payment.Id)
@@ -31,7 +31,7 @@ namespace Medical_Center.Data.Repository
 
         public async Task<Payment> GetOneAsync(int id, bool tracked = true)
         {
-            IQueryable<Payment> query = _db.Payments;
+            IQueryable<Payment> query = _db.Bookings;
 
             if (!tracked)
             {

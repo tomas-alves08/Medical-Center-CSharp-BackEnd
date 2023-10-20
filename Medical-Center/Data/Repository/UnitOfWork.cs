@@ -11,19 +11,19 @@ namespace Medical_Center.Data.Repository
         private IRepo<Doctor> _doctors;
         private IRepo<Patient> _patients;
 
-        /*private IRepo<Booking> _bookings;*/
+        private IRepo<Payment> _bookings;
 
         public UnitOfWork(ApplicationDbContext db, 
                             IRepo<Appointment> appointmentRepository, 
                             IRepo<Doctor> doctorsRepository, 
-                            IRepo<Patient> patientsRepository
-                            /*IRepo<Booking> bookingRepository*/)
+                            IRepo<Patient> patientsRepository,
+                            IRepo<Payment> bookingRepository)
         {
              _db = db;
             _appointments = appointmentRepository;
             _doctors = doctorsRepository;
             _patients = patientsRepository;
-            /*_bookings = bookingRepository;*/
+            _bookings = bookingRepository;
         }
 
         public IRepo<Appointment> Appointments => _appointments;
@@ -32,7 +32,7 @@ namespace Medical_Center.Data.Repository
 
         public IRepo<Patient> Patients => _patients;
 
-        /*public IRepo<Payment> Bookings => (IRepo<Payment>)_bookings;*/
+        public IRepo<Payment> Bookings => _bookings;
 
         public void Dispose()
         {
