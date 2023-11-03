@@ -40,7 +40,6 @@ namespace Medical_Center.Data.Repository
             var result = await query
                                     .Include(doc => doc.Appointments)
                                     .OrderBy(doc => doc.Id)
-                                    
                                     .FirstOrDefaultAsync(doc => doc.Id == id);
 
             return result;

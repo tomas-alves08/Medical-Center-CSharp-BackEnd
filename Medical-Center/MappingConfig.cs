@@ -3,6 +3,7 @@ using Medical_Center.Data.Models;
 using Medical_Center_Common.Models.DTO.AppointmentData;
 using Medical_Center_Common.Models.DTO.DoctorData;
 using Medical_Center_Common.Models.DTO.PatientData;
+using Medical_Center_Common.Models.DTO.PaymentData;
 using Medical_Center_Common.Models.DTO.UserData.LocalUserData;
 using Medical_Center_Common.Models.DTO.UserData.LoginData;
 using Medical_Center_Common.Models.DTO.UserData.RegistrationData;
@@ -24,6 +25,8 @@ namespace Medical_Center
             CreateMap<Doctor, DoctorDTO>().ReverseMap();
             CreateMap<Doctor, CreateDoctorDTO>().ReverseMap();
             CreateMap<Doctor, UpdateDoctorDTO>().ReverseMap();
+
+            CreateMap<Payment, PaymentDTO>().ReverseMap();
 
             CreateMap<LocalUser, RegistrationRequestDTO>().ReverseMap();
             CreateMap<LocalUserDTO, LoginRequestDTO>().ReverseMap();

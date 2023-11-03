@@ -13,6 +13,8 @@ namespace Medical_Center.Data.Models
         public int DoctorId { get; set; }
         public Doctor? Doctor { get; set; }
         public string DiagnosisDetails { get; set; } = string.Empty;
+        public int PaymentId { get; set; }
+        public Payment? Payment { get; set; }
         public DateTime CreateTime { get; set; }
         public DateTime UpdateTime { get; set; }
     }

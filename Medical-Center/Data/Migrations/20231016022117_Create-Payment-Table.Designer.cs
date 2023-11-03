@@ -4,6 +4,7 @@ using Medical_Center.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Medical_Center.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231016022117_Create-Payment-Table")]
+    partial class CreatePaymentTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,12 +73,12 @@ namespace Medical_Center.Migrations
                         {
                             Id = 1,
                             AppointmentDateTime = new DateTime(2023, 10, 17, 14, 30, 0, 0, DateTimeKind.Unspecified),
-                            CreateTime = new DateTime(2023, 10, 18, 14, 39, 58, 594, DateTimeKind.Local).AddTicks(4258),
+                            CreateTime = new DateTime(2023, 10, 16, 15, 21, 16, 986, DateTimeKind.Local).AddTicks(3685),
                             DiagnosisDetails = "",
                             DoctorId = 1,
                             PatientId = 1,
                             PaymentId = 0,
-                            UpdateTime = new DateTime(2023, 10, 18, 14, 39, 58, 594, DateTimeKind.Local).AddTicks(4297)
+                            UpdateTime = new DateTime(2023, 10, 16, 15, 21, 16, 986, DateTimeKind.Local).AddTicks(3732)
                         });
                 });
 
@@ -126,12 +129,12 @@ namespace Medical_Center.Migrations
                             Id = 1,
                             Address = "77 Craig Street",
                             City = "Wellington",
-                            CreateTime = new DateTime(2023, 10, 18, 14, 39, 58, 594, DateTimeKind.Local).AddTicks(4426),
+                            CreateTime = new DateTime(2023, 10, 16, 15, 21, 16, 986, DateTimeKind.Local).AddTicks(3859),
                             ExtraDetails = "",
                             FirstName = "Joseph",
                             LastName = "Smith",
                             RegistrationNumber = 167948,
-                            UpdateTime = new DateTime(2023, 10, 18, 14, 39, 58, 594, DateTimeKind.Local).AddTicks(4428)
+                            UpdateTime = new DateTime(2023, 10, 16, 15, 21, 16, 986, DateTimeKind.Local).AddTicks(3860)
                         });
                 });
 
@@ -212,11 +215,11 @@ namespace Medical_Center.Migrations
                             Address = "8 Fake Street",
                             BirthDate = new DateTime(1989, 3, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             City = "Wellington",
-                            CreateTime = new DateTime(2023, 10, 18, 14, 39, 58, 594, DateTimeKind.Local).AddTicks(4413),
+                            CreateTime = new DateTime(2023, 10, 16, 15, 21, 16, 986, DateTimeKind.Local).AddTicks(3845),
                             ExtraDetails = "",
                             FirstName = "Tomas",
                             LastName = "Alves de Souza",
-                            UpdateTime = new DateTime(2023, 10, 18, 14, 39, 58, 594, DateTimeKind.Local).AddTicks(4415)
+                            UpdateTime = new DateTime(2023, 10, 16, 15, 21, 16, 986, DateTimeKind.Local).AddTicks(3847)
                         });
                 });
 
@@ -245,7 +248,7 @@ namespace Medical_Center.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Bookings");
+                    b.ToTable("Payment");
                 });
 
             modelBuilder.Entity("Medical_Center.Data.Models.Appointment", b =>

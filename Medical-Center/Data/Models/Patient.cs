@@ -16,11 +16,9 @@ namespace Medical_Center.Data.Models
         public string City { get; set; } = string.Empty;
         public DateTime? BirthDate { get; set; }
         public ICollection<Appointment>? Appointments { get; set; }
-        public ICollection<Booking>? Bookings { get; set; }
         public Patient()
         {
             Appointments = new Collection<Appointment>();
-            Bookings = new Collection<Booking>();
         }
         public DateTime CreateTime { get; set; }
         public DateTime UpdateTime { get; set; }

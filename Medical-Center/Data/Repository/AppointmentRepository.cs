@@ -24,7 +24,7 @@ namespace Medical_Center.Data.Repository
 
             var result = await query.Include(appointment => appointment.Patient)
                                     .Include(appointment => appointment.Doctor)
-                                    .OrderBy(appointment => appointment.AppointmentDateTime)
+                                    .OrderBy(appointment => appointment.Id)
                                     .ToListAsync();
 
             return result;
@@ -39,11 +39,26 @@ namespace Medical_Center.Data.Repository
                 query = query.AsNoTracking();
             }
 
-            var result = await query
-                            .Include(appointment => appointment.Patient)
-                            .Include(appointment => appointment.Doctor)
-                            .OrderBy(appointment => appointment.AppointmentDateTime)
-                            .FirstOrDefaultAsync(appointment => appointment.Id == id);
+            var result = await query.Include(appointment => appointment.Patient)
+                                    .Include(appointment => appointment.Doctor)
+                                    .OrderBy(appointment => appointment.AppointmentDateTime)
+                                    .FirstOrDefaultAsync(appointment => appointment.Id == id);
+
+            return result;
+        }
+
+        public async Task<Appointment> GetAppointmentByDateAsync(DateTime dateTime, bool tracked = true)
+        {
+            IQueryable<Appointment> query = _db.Appointments;
+
+            if (!tracked)
+            {
+                query = query.AsNoTracking();
+            }
+
+            var result = await query.Include(appointment => appointment.Patient)
+                                    .Include(appointment => appointment.Doctor)
+                                    .FirstOrDefaultAsync(appointment => appointment.AppointmentDateTime == dateTime);
 
             return result;
         }
