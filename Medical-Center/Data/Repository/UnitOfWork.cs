@@ -12,6 +12,7 @@ namespace Medical_Center.Data.Repository
         private IRepo<Patient> _patients;
 
         private IRepo<Payment> _bookings;
+        private ApplicationDbContext db;
 
         public UnitOfWork(ApplicationDbContext db, 
                             IRepo<Appointment> appointmentRepository, 

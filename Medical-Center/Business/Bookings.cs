@@ -7,6 +7,8 @@ using Medical_Center_Common.Models.DTO.PaymentData;
 using System.Reflection.Metadata;
 using Medical_Center.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Medical_Center.Business
 {
@@ -14,7 +16,7 @@ namespace Medical_Center.Business
     {
         PaymentDTO SaveBookings(CreateAppointmentDTO appointment);
     }
-    public class Bookings : IBookings
+    public class Bookings : ControllerBase, IBookings
     {
         private readonly IRepo<Appointment> _appointments;
         private readonly IRepo<Payment> _bookings;
@@ -45,16 +47,31 @@ namespace Medical_Center.Business
             {*/
                 try
                 {
+                    var patient = _unitOfWork.Patients.GetOneAsync(appointmentDTO.PatientId);
+                    var doctor = _unitOfWork.Doctors.GetOneAsync(appointmentDTO.DoctorId);
+
+                    if ( patient == null)
+                    {  
+                        _logger.LogInformation("Please enter a valid Patient ID.");
+                        return null;
+                    }
+
+                    if (doctor == null)
+                    {
+                        _logger.LogInformation("Please enter a valid Doctor ID.");
+                        return null;
+                    }
+
                     DateTime todayNow = DateTime.Now;
-                    TimeOnly now = new TimeOnly(todayNow.TimeOfDay.Hours);
+                    TimeOnly now = TimeOnly.FromDateTime(todayNow);
                     TimeOnly time10pm = new TimeOnly(22,0,0);
 
-                        // Business Booking Making Timing Rule
-                        if(now > time10pm){
-                            throw new Exception("Payments not allowed after 10pm. Please try again tomorrow.");
-                        }
+                    if (now >= time10pm)
+                    {
+                        throw new Exception("Payments not allowed after 10pm. Please try again tomorrow.");
+                    }
 
-                    Payment payment = new()
+                Payment payment = new()
                     {
                         PatientId = appointmentDTO.PatientId,
                         Price= 100,
@@ -69,13 +86,14 @@ namespace Medical_Center.Business
                         TimeOnly time5pm = new TimeOnly(17,0,0);
                         TimeOnly time8pm = new TimeOnly(20,0,0);
 
-                        TimeOnly appointmentTime = new(appointmentDTO.AppointmentDateTime.TimeOfDay.Hours);
+                        TimeOnly appointmentTime = TimeOnly.FromDateTime(appointmentDTO.AppointmentDateTime);
 
-                        if(appointmentTime > time7am && appointmentTime < time10am)
+                        if(appointmentTime >= time7am && appointmentTime <= time10am)
                         {
                             payment.Price = 125;
                         }
-                        if(appointmentTime > time5pm && appointmentTime < time8pm) 
+
+                        if(appointmentTime >= time5pm && appointmentTime <= time8pm) 
                         {
                             payment.Price = 140;
                         }
@@ -83,16 +101,16 @@ namespace Medical_Center.Business
                     Appointment appointment = _mapper.Map<Appointment>(appointmentDTO);
                     PaymentDTO paymentDTO = _mapper.Map<PaymentDTO>(payment);
 
-                _unitOfWork.Appointments.CreateAsync(appointment);
-                payment.AppointmentId = appointment.Id;
-                /*var booking = _bookings.CreateAsync(payment);
-                appointment.PaymentId = booking.Id;*/
+                var newAppointment = _unitOfWork.Appointments.CreateAsync(appointment);
+                payment.AppointmentId = newAppointment.Id;
+                var booking = _bookings.CreateAsync(payment);
+                appointment.PaymentId = booking.Id;
                 Console.WriteLine(_db.Entry(appointment).State);
                 _unitOfWork.Save();
                 /*scope.Complete();*/
 
                 return paymentDTO;
-                } 
+            } 
                 catch (Exception)
                 {
                     _logger.LogInformation("Failed when trying to create a booking.");
@@ -100,5 +118,7 @@ namespace Medical_Center.Business
                 }
             /*}*/
         }
+
+        
     }
 }
