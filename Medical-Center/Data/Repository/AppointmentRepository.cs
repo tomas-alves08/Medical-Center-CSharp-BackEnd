@@ -47,7 +47,7 @@ namespace Medical_Center.Data.Repository
             return result;
         }
 
-        public async Task<Appointment> GetAppointmentByDateAsync(DateTime dateTime, bool tracked = true)
+        public async Task<Appointment> GetOneByDateAsync(DateTime dateTime, bool tracked = true)
         {
             IQueryable<Appointment> query = _db.Appointments;
 

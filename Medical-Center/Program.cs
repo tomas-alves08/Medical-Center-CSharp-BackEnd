@@ -24,7 +24,10 @@ builder.Services.AddScoped<IRepo<Patient>, PatientRepository>();
 builder.Services.AddScoped<IRepo<Payment>, BookingRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IBookings, Bookings>();
+builder.Services.AddScoped<IBookings, Bookings>(); 
+builder.Services.AddScoped<IAppointmentBusiness, AppointmentBusiness>();
+builder.Services.AddScoped<IPatientBusiness, PatientBusiness>();
+builder.Services.AddScoped<IDoctorBusiness, DoctorBusiness>();
 
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 
