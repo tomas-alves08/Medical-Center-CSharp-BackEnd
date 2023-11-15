@@ -45,6 +45,23 @@ namespace Medical_Center.Data.Repository
             return result;
         }
 
+        public async Task<Doctor> GetOneByRegistrationNumberAsync(int registrationNumber, bool tracked = true)
+        {
+            IQueryable<Doctor> query = _db.Doctors;
+
+            if (!tracked)
+            {
+                query = query.AsNoTracking();
+            }
+
+            var result = await query
+                                    .Include(doc => doc.Appointments)
+                                    .OrderBy(doc => doc.Id)
+                                    .FirstOrDefaultAsync(doc => doc.RegistrationNumber == registrationNumber);
+
+            return result;
+        }
+
         public async Task RemoveAsync(Doctor entity)
         {
             _db.Doctors.Remove(entity);
