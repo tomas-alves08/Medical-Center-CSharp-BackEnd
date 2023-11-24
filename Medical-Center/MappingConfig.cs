@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Medical_Center.Data.Models;
 using Medical_Center_Common.Models.DTO.AppointmentData;
 using Medical_Center_Common.Models.DTO.DoctorData;
 using Medical_Center_Common.Models.DTO.PatientData;
@@ -7,6 +6,7 @@ using Medical_Center_Common.Models.DTO.PaymentData;
 using Medical_Center_Common.Models.DTO.UserData.LocalUserData;
 using Medical_Center_Common.Models.DTO.UserData.LoginData;
 using Medical_Center_Common.Models.DTO.UserData.RegistrationData;
+using Medical_Center_Data.Data.Models;
 
 namespace Medical_Center
 {

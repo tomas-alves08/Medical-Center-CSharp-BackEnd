@@ -1,7 +1,6 @@
-﻿using Medical_Center.Data.Repository.IRepository;
-using Medical_Center_Common.Models.DTO.UserData.LocalUserData;
-using Medical_Center_Common.Models.DTO.UserData.LoginData;
+﻿using Medical_Center_Common.Models.DTO.UserData.LoginData;
 using Medical_Center_Common.Models.DTO.UserData.RegistrationData;
+using Medical_Center_Data.Data.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Medical_Center.Controllers
