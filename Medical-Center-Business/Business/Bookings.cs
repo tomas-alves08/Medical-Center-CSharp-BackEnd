@@ -1,14 +1,11 @@
 ﻿using Medical_Center_Data.Data.Models;
 using Medical_Center_Data.Data.Repository.IRepository;
 using Medical_Center_Common.Models.DTO.AppointmentData;
-using System.Transactions;
 using AutoMapper;
 using Medical_Center_Common.Models.DTO.PaymentData;
-using System.Reflection.Metadata;
 using Medical_Center_Data.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Medical_Center_Business.Business
 {
