@@ -1,8 +1,8 @@
-﻿using Medical_Center.Business;
-using Medical_Center.Data;
-using Medical_Center.Data.Repository.IRepository;
+﻿using Medical_Center_Business.Business;
 using Medical_Center_Common.Models.DTO.AppointmentData;
 using Medical_Center_Common.Models.DTO.PaymentData;
+using Medical_Center_Data.Data;
+using Medical_Center_Data.Data.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Medical_Center.Controllers

@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
-using Medical_Center.Business;
-using Medical_Center.Data.Models;
-using Medical_Center.Data.Repository.IRepository;
+using Medical_Center_Business.Business;
 using Medical_Center_Common.Models.DTO.DoctorData;
+using Medical_Center_Data.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Medical_Center.Controllers
