@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
 using Medical_Center_Business.Business;
 using Medical_Center_Common.Models.DTO.AppointmentData;
+using Medical_Center_Common.Models.DTO.EmailData;
 using Medical_Center_Data.Data.Models;
+using Medical_Center_Services.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Medical_Center.Controllers
@@ -14,15 +17,18 @@ namespace Medical_Center.Controllers
         private readonly IAppointmentBusiness _appointmentRepo;
         private readonly IPatientBusiness _patientRepo;
         private readonly IDoctorBusiness _doctorRepo;
-        public AppointmentController(IMapper mapper, IAppointmentBusiness appointmentRepo, IPatientBusiness patientRepo, IDoctorBusiness doctorRepo)
+        private readonly IEmailService _emailService;
+        public AppointmentController(IMapper mapper, IAppointmentBusiness appointmentRepo, IPatientBusiness patientRepo, IDoctorBusiness doctorRepo, IEmailService emailService)
         {
             _mapper = mapper;
             _appointmentRepo = appointmentRepo;
             _patientRepo = patientRepo;
             _doctorRepo = doctorRepo;
+            _emailService = emailService;
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<AppointmentDTO>>> GetAllAppointments()
         {
             try
@@ -37,6 +43,7 @@ namespace Medical_Center.Controllers
         }
 
         [HttpGet("id")]
+        [Authorize]
         public async Task<ActionResult<AppointmentDTO>> GetOneAppointment(int id)
         {
             try
@@ -61,12 +68,13 @@ namespace Medical_Center.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<AppointmentDTO>> CreateAppointment(CreateAppointmentDTO createDTO)
         {
             try
             {
-                var patient = _patientRepo.GetOnePatientAsync(createDTO.PatientId);
-                var doctor = _doctorRepo.GetOnedoctorAsync(createDTO.DoctorId);
+                var patient = await _patientRepo.GetOnePatientAsync(createDTO.PatientId, false);
+                var doctor = await _doctorRepo.GetOnedoctorAsync(createDTO.DoctorId, false);
 
                 if (doctor == null)
                 {
@@ -93,6 +101,21 @@ namespace Medical_Center.Controllers
 
                 createDTO.Id = model.Id;
 
+                EmailDTO email = new EmailDTO()
+                {
+                    To = "ta3117362@gmail.com",
+                    Subject = "Appointment Booking - Medical Center",
+                    Body = $@"Hello Mr./Mrs. {patient.FirstName} {patient.LastName},
+                             
+                            Your medical appointment was succesfully booked at {model.AppointmentDateTime} with doctor {doctor.FirstName} {doctor.LastName}.
+
+                            Sincerely,
+
+                            Medical Center"
+                };
+
+                _emailService.SendEmail(email);
+
                 return CreatedAtAction(nameof(CreateAppointment), new {id = model.Id}, createDTO);
             }
             catch (Exception ex)
@@ -102,6 +125,7 @@ namespace Medical_Center.Controllers
         }
 
         [HttpDelete("id")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> RemoveAppointment(int id)
         {
             try
@@ -118,6 +142,21 @@ namespace Medical_Center.Controllers
                     return NotFound();
                 }
 
+                EmailDTO email = new EmailDTO()
+                {
+                    To = "ta3117362@gmail.com",
+                    Subject = "Appointment Cancelation - Medical Center",
+                    Body = $@"Hello Mr./Mrs. {appointment.Patient.FirstName} {appointment.Patient.LastName},
+                             
+                            Your medical appointment was succesfully canceled.
+
+                            Sincerely,
+
+                            Medical Center"
+                };
+
+                _emailService.SendEmail(email);
+
                 await _appointmentRepo.RemoveAppointmentAsync(appointment);
 
                 return NoContent();
@@ -129,10 +168,11 @@ namespace Medical_Center.Controllers
         }
 
         [HttpPut("id")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> UpdateAppointment(int id, [FromBody] UpdateAppointmentDTO updateDTO) 
         {
-            var doctor = _doctorRepo.GetOnedoctorAsync(updateDTO.DoctorId, false);
-            var patient = _patientRepo.GetOnePatientAsync(updateDTO.PatientId, false);
+            var doctor = await _doctorRepo.GetOnedoctorAsync(updateDTO.DoctorId, false);
+            var patient = await _patientRepo.GetOnePatientAsync(updateDTO.PatientId, false);
 
             if (patient == null || doctor == null)
             {
@@ -154,6 +194,21 @@ namespace Medical_Center.Controllers
             var model = _mapper.Map<Appointment>(updateDTO);
 
             await _appointmentRepo.UpdateAppointmentAsync(model);
+
+            EmailDTO email = new EmailDTO()
+            {
+                To = "ta3117362@gmail.com",
+                Subject = "Appointment Update - Medical Center",
+                Body = $@"Hello Mr./Mrs. {patient.FirstName} {patient.LastName},
+                             
+                            Your medical appointment was succesfully updated.
+
+                            Sincerely,
+
+                            Medical Center"
+            };
+
+            _emailService.SendEmail(email);
 
             return NoContent();
         }

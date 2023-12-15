@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
 using Medical_Center_Business.Business;
 using Medical_Center_Common.Models.DTO.DoctorData;
+using Medical_Center_Common.Models.DTO.EmailData;
 using Medical_Center_Data.Data.Models;
+using Medical_Center_Services.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Medical_Center.Controllers
@@ -12,14 +15,17 @@ namespace Medical_Center.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IDoctorBusiness _doctorRepo;
+        private readonly IEmailService _emailService;
 
-        public DoctorController(IMapper mapper, IDoctorBusiness doctorRepo)
+        public DoctorController(IMapper mapper, IDoctorBusiness doctorRepo, IEmailService emailService)
         {
             _mapper = mapper;
             _doctorRepo = doctorRepo;
+            _emailService = emailService;
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<DoctorDTO>>> GetAllDoctors()
         {
             try
@@ -35,6 +41,7 @@ namespace Medical_Center.Controllers
         }
 
         [HttpGet("id")]
+        [Authorize]
         public async Task<ActionResult<DoctorDTO>> GetOneDoctor(int id)
         {
             try
@@ -62,6 +69,7 @@ namespace Medical_Center.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles ="Admin")]
         public async Task<ActionResult<DoctorDTO>> CreateDoctor([FromBody] CreateDoctorDTO createDTO)
         {
             try
@@ -88,6 +96,21 @@ namespace Medical_Center.Controllers
 
                 createDTO.Id = model.Id;
 
+                EmailDTO email = new EmailDTO()
+                {
+                    To = "ta3117362@gmail.com",
+                    Subject = "Doctor user created Succesfully",
+                    Body = $@"Hello Mr./Mrs. {model.FirstName} {model.LastName},
+                            
+                            Your user was created succesfully.
+
+                            Sincerely,
+
+                            Medical Center"
+                };
+
+                _emailService.SendEmail(email);
+
                 return CreatedAtAction(nameof(CreateDoctor), new { id = model.Id }, createDTO);
             }
             catch (Exception)
@@ -97,6 +120,7 @@ namespace Medical_Center.Controllers
         }
 
         [HttpDelete("id")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> RemoveDoctor(int id)
         {
             try
@@ -124,6 +148,7 @@ namespace Medical_Center.Controllers
         }
 
         [HttpPut("id")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> UpdateDoctor(int id, [FromBody] UpdateDoctorDTO updateDTO)
         {
             try

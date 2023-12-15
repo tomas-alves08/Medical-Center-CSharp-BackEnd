@@ -1,12 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Reflection.Metadata;
-using Medical_Center_Common.Models.DTO.AppointmentData;
-using Medical_Center_Common.Models.DTO.DoctorData;
-using Medical_Center_Common.Models.DTO.PatientData;
 using Medical_Center_Data.Data.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Medical_Center_Data.Data
 {
@@ -17,14 +11,11 @@ namespace Medical_Center_Data.Data
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<Payment> Bookings { get; set; }
-        /*public DbSet<Payment> Payments { get; set; }*/
         public DbSet<LocalUser> LocalUsers { get; set; }
-        /*
-        public DbSet<AppointmentOrderResponse> AppointmentOrderResponses { get; set; }*/
-        /*public DbSet<Payment> Payments { get; set; }*/
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Appointment>().HasKey(k => k.Id);
             modelBuilder.Entity<Patient>().HasKey(k => k.Id);
             modelBuilder.Entity<Doctor>().HasKey(k => k.Id);
